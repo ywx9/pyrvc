@@ -4,3 +4,4 @@ dist
 __pycache__
 pyrvc.egg-info
 pyrvc/hubert_base.pt
+pyrvc-converted

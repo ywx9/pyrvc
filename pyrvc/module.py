@@ -1,10 +1,12 @@
-import os, time, logging
+import os
+import time
+import logging
+import signal
 
 logging.basicConfig(level="WARNING")
 
 import parselmouth
 import pyworld
-import signal
 import torch
 import numpy as np
 
