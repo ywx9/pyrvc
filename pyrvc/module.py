@@ -27,8 +27,8 @@ device = torch.device(device)
 
 if not os.path.exists(os.path.join(DIR, "hubert_base.pt")):
     with open(os.path.join(DIR, "hubert_base.pt"), "wb") as of:
-        with open(os.path.join(DIR, "hubert_base.pt.1"), "rb") as f: of.write(f.read())
-        with open(os.path.join(DIR, "hubert_base.pt.2"), "rb") as f: of.write(f.read())
+        with open(os.path.join(DIR, "hubert_base_1.py"), "rb") as f: of.write(f.read())
+        with open(os.path.join(DIR, "hubert_base_2.py"), "rb") as f: of.write(f.read())
 
 
 def init_weights(m, mean=0.0, std=0.01):
