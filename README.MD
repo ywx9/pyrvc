@@ -13,17 +13,20 @@ Alternatively, you may use the following projects to create your models.
 # How to use this
 
 ```python
-MODEL_PATH = ".../moden_name.pth" # RVC model file
-VOICE_PATH = ".../voice_name.wav" # Using pydub to load voice data.
-OUTPUT_PATH = ".../output.wav"    # Using pydub to save outputs.
+MODEL_PATH = ".../moden.pth"
+input_PATH = ".../input.wav"
+OUTPUT_PATH = ".../output.wav"
 
 import pyrvc
 
 model = pyrvc.Model(MODEL_PATH)
 
-output = model.convert_from_file(VOICE_PATH)
+input = pyrvc.Wave.from_file(INPUT_PATH)
 
-model.save_as(output, OUTPUT_PATH)
+output = model.convert(wave)
+
+output.play()
+output.save_as(OUTPUT_PATH)
 ```
 
 # Requirements
