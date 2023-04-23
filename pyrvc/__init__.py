@@ -4,9 +4,11 @@ logging.basicConfig(level="WARNING")
 
 import numpy as np
 import fairseq
-from pydub import AudioSegment
+import pydub
 
 import pyrvc.module as module
+from .wave import Wave
+
 
 class Model():
     _hubert_model = None
@@ -36,7 +38,7 @@ class Model():
             self._hubert_model = models[0].to(module.device).half() if module.is_half else models[0].to(module.device).float()
             self._hubert_model.eval()
 
-    def convert(self, wave: np.ndarray, sr: int, *, raise_pitch: int=0, f0_method: str="pm"):
+    def convert(self, wave: Wave, *, raise_pitch: int=0, f0_method: str="pm"):
         """Converts wave data by the loaded model.
         ``wave: np.ndarray`` - wave data of float (-1.0 ~ 1.0)
         ``sr: int`` - sampling rate of the wave data. 16000 is preferred.
@@ -44,22 +46,7 @@ class Model():
         ``f0_method: str="pm"`` - ``"pm"`` or ``"harvest"``
         ``return: np.ndarray(int16)``
         """
-        if sr != 16000:
-            x = np.arange(int(len(wave)*16000/sr), dtype=np.float_) * (sr/16000)
-            wave = np.interp(x, np.arange(len(wave)), wave)
-        else: wave = np.asarray(wave)
+        wave = wave.monaural().change_sr(16000).asnumpy(np.float64).ravel()
         times = [0, 0, 0]
-        return self._converter(self._hubert_model, self._net_g, 0, wave, times, raise_pitch, f0_method)
-
-    def convert_from_file(self, file, *, raise_pitch: int=0, f0_method: str="pm"):
-        a: AudioSegment = AudioSegment.from_file(file)
-        return self.convert(a.get_array_of_samples(), a.frame_rate)
-
-    def save_as(self, converted, file: str, format: str=None):
-        """Saves a converted voice as the specified file.
-        ``converted`` - monoral wave data of int16
-        ``file: str`` - file name
-        ``format: str=None`` - Use the extension if is None. You can use ``"wav"``, ``"mp3"``...
-        """
-        if format is None: format = file.split(".")[-1]
-        AudioSegment(converted, sample_width=2, frame_rate=self.sr, channels=1).export(file, format)
+        a = self._converter(self._hubert_model, self._net_g, 0, wave, times, raise_pitch, f0_method)
+        return Wave.from_numpy(a, self.sr)
