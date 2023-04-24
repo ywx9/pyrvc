@@ -14,14 +14,14 @@ Alternatively, you may use the following projects to create your models.
 
 ```python
 MODEL_PATH = ".../moden.pth"
-input_PATH = ".../input.wav"
+INPUT_PATH = ".../input.wav"
 OUTPUT_PATH = ".../output.wav"
 
 import pyrvc
 
 model = pyrvc.Model(MODEL_PATH)
 
-input = pyrvc.Wave.from_file(INPUT_PATH)
+wave = pyrvc.Wave.from_file(INPUT_PATH)
 
 output = model.convert(wave)
 
