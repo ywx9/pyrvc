@@ -2,7 +2,6 @@ import array
 import threading
 
 import numpy as np
-from scipy import interpolate
 import pydub
 from pydub.playback import play
 
@@ -25,7 +24,6 @@ class Wave():
         if data is None: self.__as = pydub.AudioSegment.from_file(args[0])
         else: self.__as = pydub.AudioSegment(data, sample_width=2, frame_rate=sr, channels=channels)
         self.__samples = self.__as.frame_count()
-        self.interpolate = None
 
     @classmethod
     def from_file(cls, file):
@@ -61,7 +59,7 @@ class Wave():
         self.__as.export(file, format)
 
     def play(self, background: bool=False):
-        """Plays this wave.
+        """Plays this wave by pyaudio.
         ``background: bool=False``
         """
         if background: threading.Thread(target=lambda: play(self.__as)).start()
@@ -71,14 +69,27 @@ class Wave():
         if self.channels <= 1: return self
         return Wave.from_numpy((self.asnumpy(np.int32).sum(-1)/2).astype(np.int16), self.sr)
 
-    def change_sr(self, sr: int):
-        if self.interpolate is None:
-            x = np.arange(self.samples)
-            y = self.asnumpy(np.float_)
-            self.interpolators = [interpolate.interp1d(x, y[:,i]) for i in range(self.channels)]
-        if sr == self.sr: return self
+    def change_sr_(self, sr: int) -> np.ndarray:
+        """Changes sampling rate and returns ndarray.
+        ``sr: int`` - sampling rate
+        ``return: ndarray(float64)`` - monaural
+        """
+        a = np.average(self.asnumpy(np.float64), -1)
         n = int(self.samples * sr / self.sr)
-        x = np.arange(n, dtype=np.float_) * (self.sr / sr)
-        y = np.zeros((n, self.channels), np.float_)
-        for i, interpolator in enumerate(self.interpolators): np.copyto(y[:,i], interpolator(x))
-        return Wave.from_numpy(y.astype(np.int16), sr)
+        x = np.arange(n, dtype=np.float64) * (self.sr / sr)
+        return np.interp(x, np.arange(self.samples), a)
+
+    # def change_sr(self, sr: int) -> np.ndarray:
+    #     """
+    #     ``return: np.ndarray(np.float64)``
+    #     """
+    #     if self.interpolate is None:
+
+    #         y = self.asnumpy(np.float_)
+    #         # self.interpolators = [interpolate.interp1d(x, y[:,i]) for i in range(self.channels)]
+    #     if sr == self.sr: return self
+    #     n = int(self.samples * sr / self.sr)
+    #     x = np.arange(n, dtype=np.float_) * (self.sr / sr)
+    #     y = np.zeros((n, self.channels), np.float_)
+    #     for i, interpolator in enumerate(self.interpolators): np.copyto(y[:,i], np.interp(x, x = np.arange(self.samples), ))
+    #     return Wave.from_numpy(y.astype(np.int16), sr)

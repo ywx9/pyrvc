@@ -976,9 +976,9 @@ class Converter():
         p_len = torch.tensor([p_len], device=device).long()
         with torch.no_grad():
             if pitch is not None and pitchf is not None:
-                audio1 = (net_g.infer(feats, p_len, pitch, pitchf, sid)[0][0,0]*32768).data.cpu().float().numpy().astype(np.int16)
+                audio1 = (net_g.infer(feats, p_len, pitch, pitchf, sid)[0][0,0]*32768).to(torch.int16).data.cpu().numpy()
             else:
-                audio1 = (net_g.infer(feats, p_len, sid)[0][0,0]*32768).data.cpu().float().numpy().astype(np.int16)
+                audio1 = (net_g.infer(feats, p_len, sid)[0][0,0]*32768).to(torch.int16).data.cpu().numpy()
         del feats, p_len, padding_mask
         if torch.cuda.is_available(): torch.cuda.empty_cache()
         t2 = time.time()

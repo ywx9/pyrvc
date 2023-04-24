@@ -46,7 +46,7 @@ class Model():
         ``f0_method: str="pm"`` - ``"pm"`` or ``"harvest"``
         ``return: np.ndarray(int16)``
         """
-        wave = wave.monaural().change_sr(16000).asnumpy(np.float64).ravel()
+        wave = wave.change_sr_(16000)
         times = [0, 0, 0]
         a = self._converter(self._hubert_model, self._net_g, 0, wave, times, raise_pitch, f0_method)
         return Wave.from_numpy(a, self.sr)
